@@ -1,0 +1,17 @@
+Changes
+MANIFEST
+MANIFEST.SKIP
+Makefile.PL
+README
+Prepare.pm
+cache/25_uribl.cf
+cache/level2
+cache/level3
+cache/three-level-tlds
+cache/two-level-tlds
+cache/white
+recurse2txt
+scripts/cacheTLDs.pl
+scripts/cacheTLDs.sh
+t/prepare.t
+META.yml                                 Module meta-data (added by MakeMaker)
