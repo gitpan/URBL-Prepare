@@ -14,13 +14,13 @@ SYNOPSIS
 
 DESCRIPTION
     * my $urbl = new URBL::Prepare;
-    This method returns a blessed reference to an empty hash.
+      This method returns a blessed reference to an empty hash.
 
-    For use with other modules:
+      For use with other modules:
 
-      require URBL::Prepare;
+        require URBL::Prepare;
 
-      @ISA = qw(URBL::Prepare);
+        @ISA = qw(URBL::Prepare);
 
 URBL Preparation for lookup methods
     The following three methods are for facilitating URBL lookups.
@@ -29,37 +29,37 @@ URBL Preparation for lookup methods
       and   http://www.surbl.org/guidelines
 
     * $tldlist = $blessed->cachetlds($localfilelistptr);
-    This method opens local files in "file list" and extracts the tld's
-    found therein.
+      This method opens local files in "file list" and extracts the tld's
+      found therein.
 
-      input:        ptr to array of local/file/path/names
-      return:       array ptr to list of tld's
+        input:        ptr to array of local/file/path/names
+        return:       array ptr to list of tld's
 
-    NOTE: place level 3 tld's ahead of level 2 tld's
+      NOTE: place level 3 tld's ahead of level 2 tld's
 
     * $whitelist = $blessed->cachewhite($localfilelistptr);
-    This method opens local file(s) in "file list" and extracts the domains
-    found therein.
+      This method opens local file(s) in "file list" and extracts the
+      domains found therein.
 
-      See http://wiki.apache.org/spamassassin/DnsBlocklists         and
-      http://spamassasin.googlecode.com/svn-history/r6/trunk/share/spamassassin/
+        See http://wiki.apache.org/spamassassin/DnsBlocklists         and
+        http://spamassasin.googlecode.com/svn-history/r6/trunk/share/spamassassin/
 
-    Note:: these URL's may change
+      Note:: these URL's may change
 
-      input:        ptr to array of local/file/path/names
-      return:       array ptr to whitelist domain names
+        input:        ptr to array of local/file/path/names
+        return:       array ptr to whitelist domain names
 
     * $domain = $blessed->urbldomain($hostname)
-    This method extracts a domain name to check against an SURBL. If the
-    hostname is whitelisted, the return value is false, otherwise a domain
-    name is returned.
+      This method extracts a domain name to check against an SURBL. If the
+      hostname is whitelisted, the return value is false, otherwise a domain
+      name is returned.
 
-      input:        hostname
-      return:       false if whitelited,
-             else   domain name
+        input:        hostname
+        return:       false if whitelited,
+               else   domain name
 
-    NOTE: optionally white or tld testing will be bypassed if the pointer is
-    undefined or points to an empty array.
+      NOTE: optionally white or tld testing will be bypassed if the pointer
+      is undefined or points to an empty array.
 
     * $response_code = $proto->loadcache($url,$localfile);
     * ($response,$message) = $proto->loadcache($url,$localfile);
@@ -132,7 +132,7 @@ APPLICATION EXAMPLES
       $sp->cachewhite($localwhitefiles);
       $sp->cachetlds($localtldfiles);
 
-      # set multisurbl.org bit mask
+      # set multi.surbl.org bit mask
       #     2 = comes from SC
       #     4 = comes from WS
       #     8 = comes from PH
@@ -141,7 +141,7 @@ APPLICATION EXAMPLES
       #     32 = comes from AB
       #     64 = comes from JP
 
-      my $mask = 0xDF;
+      my $mask = 0xDE;
 
         ... application ...
         ... generates   ...
@@ -149,7 +149,6 @@ APPLICATION EXAMPLES
 
       my $domain = $sp->urbldomain($hostname)
 
-      # the procedure for using black.uribl.com is the same
       my $response = $dig->for($hostname . 'multi.surbl.org')
             if $domain;     # if not whitelisted
 
@@ -166,6 +165,17 @@ APPLICATION EXAMPLES
       # domain not found in surbl
 
       ...end
+
+    The procedure for using multi.uribl.com is the same, their bit mask is
+    as follows:
+
+      1   00000001  Query blocked, possibly due to high volume
+      2   00000010  black
+      4   00000100  grey
+      8   00001000  red
+      14  00001110  black,grey,red (for testpoints)
+
+    ....................
 
     This is an example of a script file to keep the whitelist and tldlist
     current. Run as a cron job daily.

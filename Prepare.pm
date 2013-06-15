@@ -6,7 +6,7 @@ use strict;
 use AutoLoader 'AUTOLOAD';
 use vars qw($VERSION);
 
-$VERSION = do { my @r = (q$Revision: 0.01 $ =~ /\d+/g); sprintf "%d."."%02d" x $#r, @r };
+$VERSION = do { my @r = (q$Revision: 0.03 $ =~ /\d+/g); sprintf "%d."."%02d" x $#r, @r };
 
 sub loadcache;
 sub Destroy {};
@@ -29,6 +29,8 @@ URPL::Prepare -- prepare hostname for URBL domain lookup
 
 =head1 DESCRIPTION
 
+=over 2
+
 =item * my $urbl = new URBL::Prepare;
 
 This method returns a blessed reference to an empty hash.
@@ -38,6 +40,8 @@ For use with other modules:
   require URBL::Prepare;
 
   @ISA = qw(URBL::Prepare);
+
+=back
 
 =cut
 
@@ -53,6 +57,8 @@ The following three methods are for facilitating URBL lookups.
 
   SEE:	http://www.uribl.com/about.shtml
   and	http://www.surbl.org/guidelines
+
+=over 2
 
 =item * $tldlist = $blessed->cachetlds($localfilelistptr);
 
@@ -127,6 +133,8 @@ is returned.
 NOTE: optionally white or tld testing will be bypassed if the pointer 
 is undefined or points to an empty array.
 
+=back
+
 =cut
 
 sub urbldomain {
@@ -147,8 +155,6 @@ sub urbldomain {
   $host =~ /([^\.]+\.[^\.]+)$/;
   return $1;
 }
-
-=cut   
 
 1;
 __END__
@@ -239,7 +245,7 @@ This example shows how to include URBL::Prepare in another module
   $sp->cachewhite($localwhitefiles);
   $sp->cachetlds($localtldfiles);
 
-  # set multisurbl.org bit mask
+  # set multi.surbl.org bit mask
   #	2 = comes from SC
   #	4 = comes from WS
   #	8 = comes from PH
@@ -248,7 +254,9 @@ This example shows how to include URBL::Prepare in another module
   #	32 = comes from AB
   #	64 = comes from JP
 
-  my $mask = 0xDF;
+  # test as: surbl-org-permanent-test-point.com.multi.surbl.org
+
+  my $mask = 0xDE;
 
     ... application ...
     ... generates   ...
@@ -256,7 +264,6 @@ This example shows how to include URBL::Prepare in another module
 
   my $domain = $sp->urbldomain($hostname)
 
-  # the procedure for using black.uribl.com is the same
   my $response = $dig->for($hostname . 'multi.surbl.org')
 	if $domain;	# if not whitelisted
 

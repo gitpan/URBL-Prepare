@@ -1,4 +1,11 @@
 Revision history for Perl extension URBL::Prepare
 
+0.03  Fri Jun 14 17:44:32 PDT 2013
+	update documentation to correct
+	test points for listed URBL's
+
+0.02  no released
+	clean up POD syntax errors
+
 0.01  Thu Jun 13 12:10:38 PDT 2013
 	initial release
