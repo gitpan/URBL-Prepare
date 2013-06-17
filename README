@@ -63,35 +63,36 @@ URBL Preparation for lookup methods
 
     * $response_code = $proto->loadcache($url,$localfile);
     * ($response,$message) = $proto->loadcache($url,$localfile);
-    This method uses LWP::UserAgent::mirror to conditionally retrieve files
-    to fill local cache with WHITELIST and TLD names. The response code is
-    the result returned by the HTTP fetch and should be one of 200 or 304.
-    At the time this module was released the files were as follows:
+      This method uses LWP::UserAgent::mirror to conditionally retrieve
+      files to fill local cache with WHITELIST and TLD names. The response
+      code is the result returned by the HTTP fetch and should be one of 200
+      or 304. At the time this module was released the files were as
+      follows:
 
-      WHITE LIST URL
-      http://spamassasin.googlecode.com/svn-history/r6/trunk/share/spamassassin/25_uribl.cf
+        WHITE LIST URL
+        http://spamassasin.googlecode.com/svn-history/r6/trunk/share/spamassassin/25_uribl.cf
 
-    and
+      and
 
-      TLDLIST URL (include some known abusive tlds)
-      http://george.surbl.org/three-level-tlds
-      http://george.surbl.org/two-level-tlds
+        TLDLIST URL (include some known abusive tlds)
+        http://george.surbl.org/three-level-tlds
+        http://george.surbl.org/two-level-tlds
 
-      input:        path/name/for/localfile
-      return:       http response code,
-                    response message
+        input:        path/name/for/localfile
+        return:       http response code,
+                      response message
 
-    In scalar context only the http response code is returned. In array
-    context the numeric response code and a related text message are
-    returned.
+      In scalar context only the http response code is returned. In array
+      context the numeric response code and a related text message are
+      returned.
 
-      200   OK              file cached
-      304   Not Modified    file is up-to-date
+        200   OK              file cached
+        304   Not Modified    file is up-to-date
 
-    Any other response code indicates and error.
+      Any other response code indicates and error.
 
-      Usage:
-      $rv = URBL::Prepare->loadcache($url,$localfile);
+        Usage:
+        $rv = URBL::Prepare->loadcache($url,$localfile);
 
 APPLICATION EXAMPLES
     This example shows how to include URBL::Prepare in another module
@@ -141,6 +142,8 @@ APPLICATION EXAMPLES
       #     32 = comes from AB
       #     64 = comes from JP
 
+      # test as: surbl-org-permanent-test-point.com.multi.surbl.org
+
       my $mask = 0xDE;
 
         ... application ...
@@ -165,17 +168,6 @@ APPLICATION EXAMPLES
       # domain not found in surbl
 
       ...end
-
-    The procedure for using multi.uribl.com is the same, their bit mask is
-    as follows:
-
-      1   00000001  Query blocked, possibly due to high volume
-      2   00000010  black
-      4   00000100  grey
-      8   00001000  red
-      14  00001110  black,grey,red (for testpoints)
-
-    ....................
 
     This is an example of a script file to keep the whitelist and tldlist
     current. Run as a cron job daily.

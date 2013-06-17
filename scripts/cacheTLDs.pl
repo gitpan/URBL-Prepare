@@ -1,6 +1,7 @@
 #!/usr/bin/perl
 #
 # cache refresh cron job
+# version 1.02	6-14-13	michael@bizsystems.com
 #
 require URBL::Prepare;
 
@@ -10,12 +11,12 @@ my $whitefile =
 my $tldfile2 = 'http://george.surbl.org/two-level-tlds';
 my $tldfile3 = 'http://george.surbl.org/three-level-tlds';
 
-my $cachedir  = './cache';
+my $cachedir  = $ARGV[0];
 my $level2    = $cachedir .'/level2';
 my $level3    = $cachedir .'/level3';
 my $white     = $cachedir .'/white'; 
 
-mkdir $cachedir unless -d $cachedir;
+mkdir $cachedir unless $cachedir && -d $cachedir;
 
 my($code,$msg) = URBL::Prepare->loadcache($whitefile,$white);
 print $0,' ',$msg,"\n" unless $code == 200 || $code == 304;

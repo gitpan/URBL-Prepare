@@ -6,7 +6,7 @@ use strict;
 use AutoLoader 'AUTOLOAD';
 use vars qw($VERSION);
 
-$VERSION = do { my @r = (q$Revision: 0.03 $ =~ /\d+/g); sprintf "%d."."%02d" x $#r, @r };
+$VERSION = do { my @r = (q$Revision: 0.04 $ =~ /\d+/g); sprintf "%d."."%02d" x $#r, @r };
 
 sub loadcache;
 sub Destroy {};
@@ -133,8 +133,6 @@ is returned.
 NOTE: optionally white or tld testing will be bypassed if the pointer 
 is undefined or points to an empty array.
 
-=back
-
 =cut
 
 sub urbldomain {
@@ -191,6 +189,8 @@ Any other response code indicates and error.
 
   Usage:
   $rv = URBL::Prepare->loadcache($url,$localfile);
+
+=back
 
 =cut
 
