@@ -1,5 +1,12 @@
 Revision history for Perl extension URBL::Prepare
 
+0.06  Sun Dec 15 06:13:06 PST 2013
+	add method 'urblwhite'
+
+0.05  Sat Dec 14 11:33:04 PST 2013
+	update to force all stored white & tld's to be lower case
+	add method 'urblblack'
+
 0.04  Mon Jun 17 11:09:13 PDT 2013
 	update cacheTLDs.pl to use $ARGV[0] for cachedir
 	fixed IDIOTIC POD error

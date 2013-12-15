@@ -8,9 +8,11 @@ SYNOPSIS
 
       $tlds = $blessed->cachetlds($localfilelistptr);
       $whitelist = $blessed->cachewhite($localfilelistptr);
-      $domain = $blessed->urbldomain($hostname)
+      $domain = $blessed->urbldomain($hostname);
       $response_code = $proto->loadcache($url,$localfile);
       ($response,$message) = $proto->loadcache($url,$localfile);
+      $rv = $blessed->urblblack($hostname);
+      $rv = $blessed->urblwhite($hostname);
 
 DESCRIPTION
     * my $urbl = new URBL::Prepare;
@@ -60,6 +62,19 @@ URBL Preparation for lookup methods
 
       NOTE: optionally white or tld testing will be bypassed if the pointer
       is undefined or points to an empty array.
+
+    * $rv = $blessed->urblblack($hostname)
+      This method check if a hostname is found within the local abuse
+      list(s).
+
+        input:        hostname
+        return:       domain found, else false
+
+    * $rv = $blessed->urbwhite($hostname)
+      This method check if a hostname is found within the local white list.
+
+        input:        hostname
+        return:       domain found, else false
 
     * $response_code = $proto->loadcache($url,$localfile);
     * ($response,$message) = $proto->loadcache($url,$localfile);
@@ -178,22 +193,22 @@ APPLICATION EXAMPLES
       #
       require URBL::Prepare;
 
-      my $whitefile =
+      my $whiteurl =
       'http://spamassasin.googlecode.com/svn-history/r6/trunk/share/spamassassin/25_uribl.cf';
 
-      my $tldfile2 = 'http://george.surbl.org/two-level-tlds';
-      my $tldfile3 = 'http://george.surbl.org/three-level-tlds';
+      my $tld2url = 'http://george.surbl.org/two-level-tlds';
+      my $tld3url = 'http://george.surbl.org/three-level-tlds';
 
       my $cachedir  = './cache';
-      my $level2    = $cachedir .'/level2';
-      my $level3    = $cachedir .'/level3';
-      my $white     = $cachedir .'/white';
+      my $lvl2file  = $cachedir .'/level2';
+      my $lvl3file  = $cachedir .'/level3';
+      my $whtfile   = $cachedir .'/white';
 
       mkdir $cachedir unless -d $cachedir;
 
-      URBL::Prepare->loadcache($whitefile,$white);
-      URBL::Prepare->loadcache($tldfile2,$level2);
-      URBL::Prepare->loadcache($tldfile3,$level3);
+      URBL::Prepare->loadcache($whiteurl,$whtfile);
+      URBL::Prepare->loadcache($tld2url,$lvl2file);
+      URBL::Prepare->loadcache($tld3url,$lvl3file);
 
 AUTHOR
     Michael Robinton <michael@bizsystems.com>

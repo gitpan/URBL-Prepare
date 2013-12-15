@@ -6,7 +6,7 @@ use strict;
 use AutoLoader 'AUTOLOAD';
 use vars qw($VERSION);
 
-$VERSION = do { my @r = (q$Revision: 0.04 $ =~ /\d+/g); sprintf "%d."."%02d" x $#r, @r };
+$VERSION = do { my @r = (q$Revision: 0.06 $ =~ /\d+/g); sprintf "%d."."%02d" x $#r, @r };
 
 sub loadcache;
 sub Destroy {};
@@ -23,9 +23,11 @@ URPL::Prepare -- prepare hostname for URBL domain lookup
 
   $tlds = $blessed->cachetlds($localfilelistptr);
   $whitelist = $blessed->cachewhite($localfilelistptr);
-  $domain = $blessed->urbldomain($hostname)
+  $domain = $blessed->urbldomain($hostname); DEPRECATED
   $response_code = $proto->loadcache($url,$localfile);
   ($response,$message) = $proto->loadcache($url,$localfile);
+  $rv = $blessed->urblblack($hostname);
+  $rv = $blessed->urblwhite($hostname);
 
 =head1 DESCRIPTION
 
@@ -81,8 +83,9 @@ sub cachetlds {
     next unless open $tldf, $infile;
     foreach (<$tldf>) {
       chomp;
+      next unless $_ =~ /\S/;
       $_ =~ s/\./\\./g;
-      push @tldlist, $_;
+      push @tldlist, lc $_;
     }
   }
   $bls->{-urblpreparebad} = \@tldlist;
@@ -113,7 +116,7 @@ sub cachewhite {
       next unless $_ =~ /uridnsbl_skip_domain\s+(.+)/;
       (my $white = $1) =~ s/\./\\./g;
       chomp $white;
-      my @wtmp = split /\s+/, $white;
+      my @wtmp = split /\s+/, lc $white;
       push @whitelist, @wtmp;
     }
   }
@@ -121,6 +124,8 @@ sub cachewhite {
 }
 
 =item * $domain = $blessed->urbldomain($hostname)
+
+DEPRECATED
 
 This method extracts a domain name to check against an SURBL. If the
 hostname is whitelisted, the return value is false, otherwise a domain name
@@ -152,6 +157,48 @@ sub urbldomain {
 # must be a level 1 tld
   $host =~ /([^\.]+\.[^\.]+)$/;
   return $1;
+}
+
+=item * $rv = $blessed->urblblack($hostname)
+
+This method check if a hostname is found within the local abuse list(s).
+
+  input:	hostname
+  return:	domain found, else false
+
+=cut
+
+sub urblblack {
+  my $bls   = shift;
+  my $host  = lc shift;
+  my $tlds  = $bls->{-urblpreparebad} || [];
+  foreach (@$tlds) {
+    if ($host =~ /([^\.]+\.$_)$/) {
+      return $1;
+    }
+  }
+  return undef;
+}
+
+=item * $rv = $blessed->urbwhite($hostname)
+
+This method check if a hostname is found within the local white list.
+
+  input:	hostname
+  return:	domain found, else false
+
+=cut
+
+sub urblwhite {
+  my $bls   = shift;
+  my $host  = lc shift;
+  my $white  = $bls->{-urblpreparewhite} || [];
+  foreach (@$white) {
+    if ($host =~ /($_)$/) {
+      return $1;
+    }
+  }
+  return undef;
 }
 
 1;
@@ -290,22 +337,22 @@ current. Run as a cron job daily.
   #
   require URBL::Prepare;
 
-  my $whitefile =
+  my $whiteurl =
   'http://spamassasin.googlecode.com/svn-history/r6/trunk/share/spamassassin/25_uribl.cf';
 
-  my $tldfile2 = 'http://george.surbl.org/two-level-tlds';
-  my $tldfile3 = 'http://george.surbl.org/three-level-tlds';
+  my $tld2url = 'http://george.surbl.org/two-level-tlds';
+  my $tld3url = 'http://george.surbl.org/three-level-tlds';
 
   my $cachedir	= './cache';
-  my $level2	= $cachedir .'/level2';
-  my $level3	= $cachedir .'/level3';
-  my $white	= $cachedir .'/white';
+  my $lvl2file	= $cachedir .'/level2';
+  my $lvl3file	= $cachedir .'/level3';
+  my $whtfile	= $cachedir .'/white';
 
   mkdir $cachedir unless -d $cachedir;
 
-  URBL::Prepare->loadcache($whitefile,$white);
-  URBL::Prepare->loadcache($tldfile2,$level2);
-  URBL::Prepare->loadcache($tldfile3,$level3);
+  URBL::Prepare->loadcache($whiteurl,$whtfile);
+  URBL::Prepare->loadcache($tld2url,$lvl2file);
+  URBL::Prepare->loadcache($tld3url,$lvl3file);
 
 =cut
 
