@@ -6,7 +6,7 @@ use strict;
 use AutoLoader 'AUTOLOAD';
 use vars qw($VERSION);
 
-$VERSION = do { my @r = (q$Revision: 0.06 $ =~ /\d+/g); sprintf "%d."."%02d" x $#r, @r };
+$VERSION = do { my @r = (q$Revision: 0.08 $ =~ /\d+/g); sprintf "%d."."%02d" x $#r, @r };
 
 sub loadcache;
 sub Destroy {};
@@ -23,7 +23,7 @@ URPL::Prepare -- prepare hostname for URBL domain lookup
 
   $tlds = $blessed->cachetlds($localfilelistptr);
   $whitelist = $blessed->cachewhite($localfilelistptr);
-  $domain = $blessed->urbldomain($hostname); DEPRECATED
+  $domain = $blessed->urbldomain($hostname);
   $response_code = $proto->loadcache($url,$localfile);
   ($response,$message) = $proto->loadcache($url,$localfile);
   $rv = $blessed->urblblack($hostname);
@@ -123,22 +123,68 @@ sub cachewhite {
   $bls->{-urblpreparewhite} = \@whitelist;
 }
 
-=item * $domain = $blessed->urbldomain($hostname)
+=item * $blacklist = $blessed->cacheblack($localfilelistptr);
 
-DEPRECATED
+This method opens local file(s) in "file list" and extracts the domains found
+therein. The domains may be space seperated many to a line.
+
+  input:	ptr to array of local/file/path/names
+  return:	ptr to blacklist domain names
+
+=cut
+
+sub cacheblack {
+  my($bls,$files) = @_;
+  my @blacklist;
+  foreach my $infile (@$files) {
+    my $bkfile;
+    next unless open $bkfile, $infile;
+    foreach(<$bkfile>) {
+      chomp;
+      (my $black = $_) =~ s/\./\\./g;
+      my @btmp = split /\s+/, lc $black;
+      push @blacklist, @btmp;
+    }
+  }
+  $bls->{-urblprepareblack} = \@blacklist;
+}
+
+=item * $domain = $blessed->urbldomain($hostname)
 
 This method extracts a domain name to check against an SURBL. If the
 hostname is whitelisted, the return value is false, otherwise a domain name
 is returned.
 
   input:	hostname
-  return:	false if whitelited,
-	 else	domain name
+  return:	false if whitelisted
+	else	domain to check against SURBL
 
 NOTE: optionally white or tld testing will be bypassed if the pointer 
 is undefined or points to an empty array.
 
 =cut
+
+# Implementation Guidelines
+#
+# http://www.surbl.org/guidelines
+#
+# Extract base (registered) domains from those URIs. This includes removing
+# all leading host names, subdomains, www., randomized subdomains, etc. In
+# order to determine the level of domain to check, use our tables of two level
+# and three level TLDs. Originally these were CCTLDs, but they now also
+# include some frequently abused hosting domains. (Note that these files only
+# rarely update. Please don't retrieve them more often than once per day.) The
+# usage is:
+#
+#    For any domain on the three level list, check it at the fourth level.
+#    For any domain on the two level list, check it at the third level.
+#    For any other domain, check it at the second level.
+#
+# For example, any domain found in the two level list should have a third
+# level domain name (such as foo.co.uk) checked against SURBLs. Domains not
+# specifically on the two level list (such as foo.com or foo.fr) should be
+# checked at two levels. Please do not check at levels other than these as
+# doing so will cause unnecessary queries that won't result in matches.
 
 sub urbldomain {
   my $bls   = shift;
@@ -151,17 +197,17 @@ sub urbldomain {
   }
   foreach (@$tlds) {
     if ($host =~ /([^\.]+\.$_)$/) {
-      return $1;
+      ($host = $1) =~ s/\\//g;
+      return $host;
     }
   }
-# must be a level 1 tld
   $host =~ /([^\.]+\.[^\.]+)$/;
   return $1;
 }
 
 =item * $rv = $blessed->urblblack($hostname)
 
-This method check if a hostname is found within the local abuse list(s).
+This method check if a hostname is found within the local black list(s).
 
   input:	hostname
   return:	domain found, else false
@@ -171,10 +217,11 @@ This method check if a hostname is found within the local abuse list(s).
 sub urblblack {
   my $bls   = shift;
   my $host  = lc shift;
-  my $tlds  = $bls->{-urblpreparebad} || [];
+  my $tlds  = $bls->{-urblprepareblack} || [];
   foreach (@$tlds) {
-    if ($host =~ /([^\.]+\.$_)$/) {
-      return $1;
+    if ($host =~ /$_$/) {
+      ($host = $_) =~ s/\\//g;
+      return $host;
     }
   }
   return undef;
@@ -194,8 +241,9 @@ sub urblwhite {
   my $host  = lc shift;
   my $white  = $bls->{-urblpreparewhite} || [];
   foreach (@$white) {
-    if ($host =~ /($_)$/) {
-      return $1;
+    if ($host =~ /$_$/) {
+      ($host = $_) =~ s/\\//g;
+      return $host;
     }
   }
   return undef;

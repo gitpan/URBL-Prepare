@@ -1,5 +1,13 @@
 Revision history for Perl extension URBL::Prepare
 
+0.08  Sun Dec 15 17:38:32 PST 2013
+	add method 'urblblack'
+	change urbldomain to conform to SURBL guidelines
+	and return the domain tld to lookup
+
+0.07  Sun Dec 15 06:22:12 PST 2013
+	update comments
+
 0.06  Sun Dec 15 06:13:06 PST 2013
 	add method 'urblwhite'
 
