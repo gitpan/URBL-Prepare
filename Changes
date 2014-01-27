@@ -1,5 +1,8 @@
 Revision history for Perl extension URBL::Prepare
 
+0.09  Mon Jan 27 11:59:58 PST 2014
+        modify Makefile.PL to bypass missing 'pod2text'
+
 0.08  Sun Dec 15 17:38:32 PST 2013
 	add method 'urblblack'
 	change urbldomain to conform to SURBL guidelines
